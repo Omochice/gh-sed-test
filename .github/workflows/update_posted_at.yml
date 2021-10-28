@@ -1,4 +1,4 @@
-name: Update `posted_at`
+name: Update `posted_at` automatically
 on:
   push:
     paths:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   update:
-    name: sed
+    name: run sed
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -14,7 +14,7 @@ jobs:
       - name: extract diffs
         uses: technote-space/get-diff-action@v5
         with:
-          PATTERNS: "*.md"
+          PATTERNS: "**/*.md"
       - name: Run sed
         run: |
           files=(${{ env.GIT_DIFF }})
@@ -22,10 +22,14 @@ jobs:
             cmd="sed -i '0,/^posted_at:\ .*\$/ s/^posted_at:\ .*\$/posted_at:\ $(TZ=asia/tokyo date "+%Y-%m-%d")/' ${file}"
             eval ${cmd}
           done
-      - name: commit formatted file
+      - name: Check for modified files
+        id: git-check
+        run: echo '::set-output name=modified::$(if git diff-index --quiet HEAD --; then echo "false"; else echo "true"; fi)'
+      - name: Auto commit
+        if: ${{ steps.git-check.outputs.mofidied == 'true' }}
         run: |
-          git config user.name = "github-actions"
-          git config user.email = "github-actions[bot]@users.noreply.github.com"
-          git add -u
-          git commit -m "auto format by github actions" --allow-empty
-          git push origin ${{ steps.extract_branch.outputs.BRANCH_NAME  }}
+            git config user.name = "github-actions"
+            git config user.email = "github-actions[bot]@users.noreply.github.com"
+            git add -u
+            git commit -m ":robot: Update the date automatically.
+            git push origin
