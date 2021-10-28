@@ -19,7 +19,8 @@ jobs:
         run: |
           files=(${{ env.GIT_DIFF }})
           for file in "${files[@]}"; do
-            sed -i '0,/^posted_at:\ .*\$/ s/^posted_at:\ .*\$/posted_at:\ $(TZ=asia/tokyo date '+%Y-%m-%d')/' ${file}
+            cmd="sed -i '0,/^posted_at:\ .*\$/ s/^posted_at:\ .*\$/posted_at:\ $(TZ=asia/tokyo date "+%Y-%m-%d")/' ${file}"
+            eval ${cmd}
           done
       - name: commit formatted file
         run: |
