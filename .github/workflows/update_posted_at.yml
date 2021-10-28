@@ -17,10 +17,12 @@ jobs:
           PATTERNS: "*.md"
       - name: Run sed
         run: |
-          today=$(TZ=asia/tokyo date '+%Y-%m-%d')
+          echo ${{ env.GIT_DIFF }}
+          cat <<EOF | bash -
           for file in ${{ env.GIT_DIFF }}; do
-            bash -c "sed -i 0,/^posted_at:\ .*\$/ s/^posted_at:\ .*\$/posted_at:\ ${today}/' ${file}"
+            sed -i '0,/^posted_at:\ .*\$/ s/^posted_at:\ .*\$/posted_at:\ $(TZ=asia/tokyo date '+%Y-%m-%d')/' 
           done
+          EOF
       - name: commit formatted file
         run: |
           git config user.name = "github-actions"
