@@ -11,6 +11,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: setting for multi-byte
+        run: |
+          git config --global core.quotepath false
       - name: extract diffs
         uses: technote-space/get-diff-action@v5
         with:
